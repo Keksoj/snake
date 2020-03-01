@@ -264,7 +264,7 @@ impl<R: Read, W: Write> Game<R, W> {
         self.stdout.write(snake_position_bytes).unwrap();
 
         self.stdout.flush().unwrap();
-        write!(self.stdout, "{}", cursor::Hide).unwrap();
+        // write!(self.stdout, "{}", cursor::Hide).unwrap();
     }
 }
 

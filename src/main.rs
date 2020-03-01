@@ -14,7 +14,7 @@ fn main() {
     let stdin = async_stdin();
     let stdout = stdout();
 
-    println!("Utilise IJKL pour déplacer le serpent ;-)");
+    println!("IJKL pour déplacer le serpent, Q pour quitter");
     thread::sleep(time::Duration::from_millis(2000));
 
     let mut game = Game::new(stdin, stdout.lock());
