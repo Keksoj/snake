@@ -134,15 +134,17 @@ impl<R: Read, W: Write> Game<R, W> {
         self.board[new_tail as usize] = Cell::Tail;
 
         // find the index of the former_head and draw the snake body accordingly
-        let former_head = self.snake[self.snake.len() - 1];
+        let former_head = self.snake[self.snake.len() - 1] as usize;
         match self.turning {
-            Turning::Uptoleft => self.board[former_head as usize] = Cell::Uptoleft,
-            Turning::Uptoright => self.board[former_head as usize] = Cell::Uptoright,
-            Turning::Downtoleft => self.board[former_head as usize] = Cell::Downtoleft,
-            Turning::Downtoright => self.board[former_head as usize] = Cell::Downtoright,
-            Turning::Horizontal => self.board[former_head as usize] = Cell::Horizontal,
-            Turning::Vertical => self.board[former_head as usize] = Cell::Vertical,
+            Turning::Uptoleft => self.board[former_head] = Cell::Uptoleft,
+            Turning::Uptoright => self.board[former_head] = Cell::Uptoright,
+            Turning::Downtoleft => self.board[former_head] = Cell::Downtoleft,
+            Turning::Downtoright => self.board[former_head] = Cell::Downtoright,
+            Turning::Horizontal => self.board[former_head] = Cell::Horizontal,
+            Turning::Vertical => self.board[former_head] = Cell::Vertical,
         }
+
+        let former_head: u32 = former_head as u32;
 
         // Compute the new index of the snake's head depending of the direction
         let new_head: u32 = match self.direction {
@@ -187,23 +189,19 @@ impl<R: Read, W: Write> Game<R, W> {
             | (Direction::Right, Direction::Left) => return,
 
             // Take notice of the direction change... so boilerplate
-            (Direction::Up, Direction::Left) |
-            (Direction::Right, Direction::Down) => {
+            (Direction::Up, Direction::Left) | (Direction::Right, Direction::Down) => {
                 self.turning = Turning::Uptoleft;
                 self.direction = new_dir
             }
-            (Direction::Up, Direction::Right) |
-            (Direction::Left, Direction::Down) => {
+            (Direction::Up, Direction::Right) | (Direction::Left, Direction::Down) => {
                 self.turning = Turning::Uptoright;
                 self.direction = new_dir
             }
-            (Direction::Down, Direction::Left) |
-            (Direction::Right, Direction::Up) => {
+            (Direction::Down, Direction::Left) | (Direction::Right, Direction::Up) => {
                 self.turning = Turning::Downtoleft;
                 self.direction = new_dir
             }
-            (Direction::Down, Direction::Right) |
-            (Direction::Left, Direction::Up) => {
+            (Direction::Down, Direction::Right) | (Direction::Left, Direction::Up) => {
                 self.turning = Turning::Downtoright;
                 self.direction = new_dir
             }
@@ -215,11 +213,15 @@ impl<R: Read, W: Write> Game<R, W> {
         write!(self.stdout, "{}{}", clear::All, cursor::Goto(1, 1)).unwrap();
 
         // the top wall
-        self.stdout.write(graphics::TOP_LEFT_CORNER.as_bytes()).unwrap();
+        self.stdout
+            .write(graphics::TOP_LEFT_CORNER.as_bytes())
+            .unwrap();
         for _n in 0..self.width {
             self.stdout.write(graphics::CEILING.as_bytes()).unwrap();
         }
-        self.stdout.write(graphics::TOP_RIGHT_CORNER.as_bytes()).unwrap();
+        self.stdout
+            .write(graphics::TOP_RIGHT_CORNER.as_bytes())
+            .unwrap();
         self.stdout.write(b"\n\r").unwrap();
 
         // display each line
@@ -230,11 +232,11 @@ impl<R: Read, W: Write> Game<R, W> {
                     Cell::Empty => graphics::EMPTY,
                     Cell::Food => graphics::FOOD,
                     Cell::Head => match self.direction {
-                                    Direction::Up => graphics::UP,
-                                    Direction::Down => graphics::DOWN,
-                                    Direction::Left => graphics::LEFT,
-                                    Direction::Right => graphics::RIGHT,
-                                    }
+                        Direction::Up => graphics::UP,
+                        Direction::Down => graphics::DOWN,
+                        Direction::Left => graphics::LEFT,
+                        Direction::Right => graphics::RIGHT,
+                    },
                     Cell::Tail => graphics::TAIL,
                     Cell::Uptoleft => graphics::UPTOLEFT,
                     Cell::Uptoright => graphics::UPTORIGHT,
@@ -250,11 +252,15 @@ impl<R: Read, W: Write> Game<R, W> {
         }
 
         // the bottom wall
-        self.stdout.write(graphics::BOTTOM_LEFT_CORNER.as_bytes()).unwrap();
+        self.stdout
+            .write(graphics::BOTTOM_LEFT_CORNER.as_bytes())
+            .unwrap();
         for _n in 0..self.width {
             self.stdout.write(graphics::CEILING.as_bytes()).unwrap();
         }
-        self.stdout.write(graphics::BOTTOM_RIGHT_CORNER.as_bytes()).unwrap();
+        self.stdout
+            .write(graphics::BOTTOM_RIGHT_CORNER.as_bytes())
+            .unwrap();
         self.stdout.write(b"\n\r").unwrap();
 
         // Some nasty way of displaying the score (the snake's length)
