@@ -35,7 +35,6 @@ impl Cell {
     }
 }
 
-// Walls
 pub const WALL: &'static str = "░";
 pub const CEILING: &'static str = "░";
 pub const TOP_LEFT_CORNER: &'static str = "▒";

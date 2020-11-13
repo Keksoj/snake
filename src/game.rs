@@ -9,27 +9,18 @@ use termion::raw::RawTerminal;
 use termion::terminal_size;
 use termion::{clear, cursor};
 
-// Game is a struct that contains all information about the game
 pub struct Game<R, W: Write> {
     width: usize,
     height: usize,
-    board: Vec<Cell>, // There are no (x, y) coordinates, only one axis that gets
-    // chunked, like this:
-    //  0  1  2  3  4  5  6  7  8  9 10 11
-    // 12 13 14 15 16 17 18 19 20 21 22 23
-    // 24 25 26 27 28 29 30 31 32 33 34 35
-    // etc.
-    // each Cell of the grid is an enum,
-    // either empty, snake body, or food
-    food: usize,  // the food is one single coordinate
-    snake: Snake, // The snake is a vector of coordinates
+    board: Vec<Cell>, 
+    food: usize,  
+    snake: Snake, 
     stdout: W,
     stdin: R,
-    tick_time: u64, // milliseconds of thread sleep at each loop
+    tick_time: u64, 
 }
 
 impl<R: Read, W: Write> Game<R, W> {
-    // Set the new game to fit the terminal size.
     pub fn new(stdin: R, stdout: W) -> Game<R, RawTerminal<W>> {
         let mut new_game = Game {
             width: (terminal_size().unwrap().0 as usize) - 3,
@@ -69,7 +60,6 @@ impl<R: Read, W: Write> Game<R, W> {
             Direction::Left | Direction::Right => self.snake.turning = Turning::Keephorizontal,
         }
 
-        // read a single byte from stdin
         let mut b = [0];
         self.stdin.read(&mut b).unwrap();
         match b[0] {
@@ -137,6 +127,7 @@ impl<R: Read, W: Write> Game<R, W> {
             self.stdout.write(cell::WALL.as_bytes()).unwrap();
             self.stdout.write(b"\n\r").unwrap();
         }
+
         // the bottom wall
         self.stdout
             .write(cell::BOTTOM_LEFT_CORNER.as_bytes())
@@ -149,13 +140,12 @@ impl<R: Read, W: Write> Game<R, W> {
             .unwrap();
         self.stdout.write(b"\n\r").unwrap();
 
-        // Some nasty way of displaying the score (the snake's length)
+        // score
         self.stdout.write(b"\n\rYour score: ").unwrap();
         let snake_length_string: String = self.snake.body.len().to_string();
         let snake_position_bytes: &[u8] = snake_length_string.as_bytes();
         self.stdout.write(snake_position_bytes).unwrap();
         self.stdout.flush().unwrap();
-        // write!(self.stdout, "{}", cursor::Hide).unwrap();
     }
 
     fn game_over(&mut self, message: String) {

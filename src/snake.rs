@@ -42,7 +42,6 @@ impl Snake {
             | (Direction::Left, Direction::Right)
             | (Direction::Right, Direction::Left) => return,
 
-            // so boilerplate...
             (Direction::Up, Direction::Left) | (Direction::Right, Direction::Down) => {
                 self.turning = Turning::Uptoleft;
                 self.direction = new_dir
