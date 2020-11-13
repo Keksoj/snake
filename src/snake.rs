@@ -66,13 +66,14 @@ impl Snake {
     pub fn advance(&mut self, board_width: usize) {
         if self.growth_counter == 0 {
             self.body.remove(0);
+            self.body[0].1 = Cell::Tail;
         } else {
             self.growth_counter -= 1;
         }
 
         let new_head_index = self.body.len() - 1;
 
-        // determine the shape of the body where the head was
+        // determine the shape of the body where the head just was
         self.body[new_head_index].1 = match self.turning {
             Turning::Uptoleft => Cell::Uptoleft,
             Turning::Uptoright => Cell::Uptoright,
@@ -92,8 +93,8 @@ impl Snake {
     }
 
     pub fn body_collides_with(&mut self, coordinate_to_check: usize) -> bool {
+        // so as not to check the head
         for index in 0..self.body.len() - 2 {
-            // so as not to check the head
             if self.body[index].0 == coordinate_to_check {
                 return true;
             }
