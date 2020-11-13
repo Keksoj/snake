@@ -1,12 +1,13 @@
 // 2019-06-15
 
 use std::io::stdout;
-mod util;
-use util::Game;
-mod graphics;
+mod game;
+use game::Game;
+mod cell;
+mod snake;
 extern crate termion;
-use termion::async_stdin;
 use std::{thread, time};
+use termion::async_stdin;
 
 fn main() {
     // Get the standard input stream
