@@ -1,17 +1,20 @@
 use std::{
     io::{Error as IoError, Read, Write},
+    os::fd::AsFd,
     thread, time,
 };
+
+use rand::random_range;
+use termion::{
+    raw::IntoRawMode,
+    {clear, cursor, raw::RawTerminal, terminal_size},
+};
+use thiserror::Error;
 
 use crate::{
     cell::{self, Cell},
     snake::{Snake, Turning},
 };
-
-use rand::random_range;
-use termion::raw::IntoRawMode;
-use termion::{clear, cursor, raw::RawTerminal, terminal_size};
-use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum GameError {
@@ -28,6 +31,7 @@ pub enum GameError {
     #[error("Collision!")]
     Collision,
 }
+
 pub struct Game<R, W: Write> {
     width: usize,
     height: usize,
@@ -39,7 +43,7 @@ pub struct Game<R, W: Write> {
     tick_time: u64,
 }
 
-impl<R: Read, W: Write> Game<R, W> {
+impl<R: Read, W: Write + AsFd> Game<R, W> {
     pub fn new(stdin: R, stdout: W) -> Result<Game<R, RawTerminal<W>>, GameError> {
         let terminal_size = terminal_size().map_err(GameError::TerminalSize)?;
         let stdout = stdout.into_raw_mode().map_err(GameError::TerminalRawMode)?;
