@@ -30,6 +30,8 @@ pub enum GameError {
     Write(IoError),
     #[error("Collision!")]
     Collision,
+    #[error("player exited the game")]
+    Exit,
 }
 
 pub struct Game<R, W: Write> {
@@ -72,7 +74,7 @@ impl<R: Read, W: Write + AsFd> Game<R, W> {
     pub fn run(&mut self) -> Result<(), GameError> {
         loop {
             self.take_direction()?;
-            self.snake.advance(self.width);
+            self.snake.advance(self.width)?;
             self.check_for_food();
             self.check_for_collisions()?;
             self.write_snake_and_food_on_the_board();
@@ -94,7 +96,7 @@ impl<R: Read, W: Write + AsFd> Game<R, W> {
             b'j' => self.snake.take_direction(Direction::Left),
             b'l' => self.snake.take_direction(Direction::Right),
             b'k' => self.snake.take_direction(Direction::Down),
-            b'q' => panic!("c'est la panique !"),
+            b'q' => return Err(GameError::Exit),
             _ => {}
         }
         self.stdout.flush().map_err(GameError::Flush)?;

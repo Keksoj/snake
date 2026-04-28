@@ -1,5 +1,5 @@
 use crate::cell::Cell;
-use crate::game::Direction;
+use crate::game::{Direction, GameError};
 
 pub struct Snake {
     pub body: Vec<(usize, Cell)>,
@@ -62,7 +62,7 @@ impl Snake {
         }
     }
 
-    pub fn advance(&mut self, board_width: usize) {
+    pub fn advance(&mut self, board_width: usize) -> Result<(), GameError> {
         if self.growth_counter == 0 {
             self.body.remove(0);
             self.body[0].1 = Cell::Tail;
@@ -82,13 +82,22 @@ impl Snake {
             Turning::Keepvertical => Cell::Vertical,
         };
 
+        let head = self.head_coordinate();
+
         let new_head = match self.direction {
-            Direction::Left => (self.head_coordinate() - 1, Cell::Headsleft),
-            Direction::Right => (self.head_coordinate() + 1, Cell::Headsright),
-            Direction::Up => (self.head_coordinate() - board_width, Cell::Headsup),
-            Direction::Down => (self.head_coordinate() + board_width, Cell::Headsdown),
+            Direction::Left => match head.checked_sub(1) {
+                Some(new_coordinate) => (new_coordinate, Cell::Headsleft),
+                None => return Err(GameError::Collision),
+            },
+            Direction::Up => match head.checked_sub(board_width) {
+                Some(new_coordinate) => (new_coordinate, Cell::Headsup),
+                None => return Err(GameError::Collision),
+            },
+            Direction::Right => (head + 1, Cell::Headsright),
+            Direction::Down => (head + board_width, Cell::Headsdown),
         };
         self.body.push(new_head);
+        Ok(())
     }
 
     pub fn body_collides_with(&mut self, coordinate_to_check: usize) -> bool {
