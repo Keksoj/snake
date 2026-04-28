@@ -1,7 +1,7 @@
 use crate::cell;
 use crate::cell::Cell;
 use crate::snake::{Snake, Turning};
-use rand::{random_range, Rng};
+use rand::random_range;
 use std::io::{Read, Write};
 use std::{thread, time};
 use termion::raw::IntoRawMode;
@@ -150,7 +150,7 @@ impl<R: Read, W: Write> Game<R, W> {
     }
 
     fn game_over(&mut self, message: String) {
-        panic!(message);
+        panic!("{}", message);
     }
 }
 
