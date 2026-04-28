@@ -20,5 +20,8 @@ fn main() {
 
     let mut game = Game::new(stdin, stdout.lock()).expect("could not create a new game");
 
-    game.run();
+    if let Err(e) = game.run() {
+        println!("\nGame over: {:#}", e);
+        std::process::exit(1)
+    }
 }

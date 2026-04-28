@@ -25,6 +25,8 @@ pub enum GameError {
     Flush(IoError),
     #[error("Write error: {0}")]
     Write(IoError),
+    #[error("Collision!")]
+    Collision,
 }
 pub struct Game<R, W: Write> {
     width: usize,
@@ -68,7 +70,7 @@ impl<R: Read, W: Write> Game<R, W> {
             self.take_direction()?;
             self.snake.advance(self.width);
             self.check_for_food();
-            self.check_for_collisions();
+            self.check_for_collisions()?;
             self.write_snake_and_food_on_the_board();
             self.display_board()?;
             thread::sleep(time::Duration::from_millis(self.tick_time));
@@ -95,15 +97,16 @@ impl<R: Read, W: Write> Game<R, W> {
         Ok(())
     }
 
-    fn check_for_collisions(&mut self) {
+    fn check_for_collisions(&mut self) -> Result<(), GameError> {
         let snake_head = self.snake.head_coordinate();
 
         if snake_head % self.width == 0
             || snake_head > self.width * self.height
             || self.snake.body_collides_with(snake_head)
         {
-            self.game_over("Collision. Game over!".to_string())
+            return Err(GameError::Collision);
         }
+        Ok(())
     }
 
     pub fn check_for_food(&mut self) {
@@ -190,10 +193,6 @@ impl<R: Read, W: Write> Game<R, W> {
         self.stdout.flush().map_err(GameError::Flush)?;
 
         Ok(())
-    }
-
-    fn game_over(&mut self, message: String) {
-        panic!("{}", message);
     }
 }
 
