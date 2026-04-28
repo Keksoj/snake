@@ -1,7 +1,7 @@
 use crate::cell;
 use crate::cell::Cell;
 use crate::snake::{Snake, Turning};
-use rand::Rng;
+use rand::{random_range, Rng};
 use std::io::{Read, Write};
 use std::{thread, time};
 use termion::raw::IntoRawMode;
@@ -12,12 +12,12 @@ use termion::{clear, cursor};
 pub struct Game<R, W: Write> {
     width: usize,
     height: usize,
-    board: Vec<Cell>, 
-    food: usize,  
-    snake: Snake, 
+    board: Vec<Cell>,
+    food: usize,
+    snake: Snake,
     stdout: W,
     stdin: R,
-    tick_time: u64, 
+    tick_time: u64,
 }
 
 impl<R: Read, W: Write> Game<R, W> {
@@ -76,8 +76,9 @@ impl<R: Read, W: Write> Game<R, W> {
     fn check_for_collisions(&mut self) {
         let snake_head = self.snake.head_coordinate();
 
-        if snake_head % self.width == 0 || snake_head > self.width * self.height
-        || self.snake.body_collides_with(snake_head)
+        if snake_head % self.width == 0
+            || snake_head > self.width * self.height
+            || self.snake.body_collides_with(snake_head)
         {
             self.game_over("Collision. Game over!".to_string())
         }
@@ -85,9 +86,9 @@ impl<R: Read, W: Write> Game<R, W> {
 
     pub fn check_for_food(&mut self) {
         if self.snake.head_coordinate() == self.food {
-            let mut new_food_position = rand::thread_rng().gen_range(1, self.width * self.height);
+            let mut new_food_position = random_range(1..self.width * self.height);
             while self.snake.body_collides_with(new_food_position) {
-                new_food_position = rand::thread_rng().gen_range(1, self.width * self.height);
+                new_food_position = random_range(1..self.width * self.height);
             }
             self.food = new_food_position;
             self.snake.set_growth_bonus(3);
