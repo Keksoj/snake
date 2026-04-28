@@ -2,7 +2,7 @@
 name = "snake"
 version = "0.1.0"
 authors = ["Emmanuel Bosquet <keksoj@proton.me>"]
-edition = "2018"
+edition = "2024"
 
 [dependencies]
 rand = "0.10.1"
