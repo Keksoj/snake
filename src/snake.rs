@@ -6,7 +6,6 @@ pub struct Snake {
     pub growth_counter: u8,
     pub direction: Direction,
     pub turning: Turning,
-    pub head_symbol: Cell,
 }
 
 impl Snake {
@@ -22,7 +21,6 @@ impl Snake {
             .to_vec(),
             growth_counter: 0,
             direction: Direction::Right,
-            head_symbol: Cell::Headsright,
             turning: Turning::Keephorizontal,
         }
     }
