@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 rand = "0.10.1"
 termion = "1"
+thiserror = "2.0.1"

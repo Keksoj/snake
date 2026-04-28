@@ -18,7 +18,7 @@ fn main() {
     println!("IJKL pour déplacer le serpent, Q pour quitter");
     thread::sleep(time::Duration::from_millis(2000));
 
-    let mut game = Game::new(stdin, stdout.lock());
+    let mut game = Game::new(stdin, stdout.lock()).expect("could not create a new game");
 
     game.run();
 }

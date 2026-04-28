@@ -1,14 +1,25 @@
-use crate::cell;
-use crate::cell::Cell;
-use crate::snake::{Snake, Turning};
-use rand::random_range;
-use std::io::{Read, Write};
-use std::{thread, time};
-use termion::raw::IntoRawMode;
-use termion::raw::RawTerminal;
-use termion::terminal_size;
-use termion::{clear, cursor};
+use std::{
+    io::{Error as IoError, Read, Write},
+    thread, time,
+};
 
+use crate::{
+    cell::{self, Cell},
+    snake::{Snake, Turning},
+};
+
+use rand::random_range;
+use termion::raw::IntoRawMode;
+use termion::{clear, cursor, raw::RawTerminal, terminal_size};
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum GameError {
+    #[error("terminal size error: {0}")]
+    TerminalSize(IoError),
+    #[error("could not switch terminal to raw mode: {0}")]
+    TerminalRawMode(IoError),
+}
 pub struct Game<R, W: Write> {
     width: usize,
     height: usize,
@@ -21,17 +32,21 @@ pub struct Game<R, W: Write> {
 }
 
 impl<R: Read, W: Write> Game<R, W> {
-    pub fn new(stdin: R, stdout: W) -> Game<R, RawTerminal<W>> {
-        let mut new_game = Game {
-            width: (terminal_size().unwrap().0 as usize) - 3,
-            height: (terminal_size().unwrap().1 as usize) - 4,
+    pub fn new(stdin: R, stdout: W) -> Result<Game<R, RawTerminal<W>>, GameError> {
+        let terminal_size = terminal_size().map_err(GameError::TerminalSize)?;
+        let stdout = stdout.into_raw_mode().map_err(GameError::TerminalRawMode)?;
+
+        let game = Game {
+            width: terminal_size.0 as usize - 3,
+            height: terminal_size.1 as usize - 4,
             board: Vec::new(),
             snake: Snake::new(),
-            stdout: stdout.into_raw_mode().unwrap(),
-            stdin: stdin,
+            stdout,
+            stdin,
             food: 50,
             tick_time: 300,
         };
+        let mut new_game = game;
 
         // Fill the board with enough items
         let total_length = new_game.width * new_game.height;
@@ -39,7 +54,7 @@ impl<R: Read, W: Write> Game<R, W> {
             new_game.board.push(Cell::Empty)
         }
 
-        new_game
+        Ok(new_game)
     }
 
     pub fn run(&mut self) {
